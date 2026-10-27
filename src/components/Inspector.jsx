@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, ArrowRight, Braces, CircleDot, Database, GitBranch, HelpCircle, Key, Sigma, X } from 'lucide-react'
 import {
+  attributeDescription,
   collectExpressionStrings,
   conceptMembers,
   expressionText,
@@ -521,7 +522,7 @@ function ConceptDetail({ item, model, onNavigate }) {
                 const types = attributeTypes(member, model, t)
                 const isPk = member.keyIndex >= 0 || (item.identify_by || []).includes(member.name)
                 const typeText = types.map((type) => type.label).join(', ') || t('concept.noType')
-                const descText = member.relationship.description
+                const descText = attributeDescription(member.relationship, model)
                 const reqText = requiresText(member)
 
                 return (

@@ -286,6 +286,19 @@ function inheritanceChain(concept, model) {
  * again, which makes a subtype's own relationship override the parent's of the
  * same name and keeps diamond inheritance from listing a member twice.
  */
+/**
+ * What an attribute row says about itself: the relationship's own description,
+ * or else the definition of the one value type it holds -- an ontology that
+ * describes a value type once should not have to repeat it on every attribute.
+ */
+export function attributeDescription(relationship, model) {
+  if (relationship.description) return relationship.description
+  const roles = relationship.roles || []
+  if (roles.length !== 1) return ''
+  const concept = model.conceptByName.get(roles[0].concept)
+  return concept?.type === 'ValueType' ? concept.description || '' : ''
+}
+
 export function conceptMembers(concept, model) {
   if (!concept) return { attributes: [], associations: [], inbound: [] }
   const attributes = []

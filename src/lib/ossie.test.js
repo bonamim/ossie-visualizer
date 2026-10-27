@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
+  attributeDescription,
   buildSearchIndex,
   indexKinds,
   conceptMembers,
@@ -249,6 +250,18 @@ describe('relationship classification', () => {
     expect(relationshipKind(party.related_to, model)).toBe('association')
     expect(relationshipKind(relationshipsOf('customer').places, model)).toBe('association')
     expect(relationshipKind(relationshipsOf('order').priced_on, model)).toBe('objectified')
+  })
+
+  it('describes an attribute by its own text, or else by the value type it holds', () => {
+    const described = structuredClone(classified)
+    const tax = described.ontology.find((concept) => concept.concept === 'tax_number')
+    tax.description = 'A nine-digit tax number.'
+    const withTypes = normalizeOssie(described)
+    const party = withTypes.conceptByName.get('party')
+    const byName = Object.fromEntries(party.relationships.map((r) => [r.name, r]))
+    expect(attributeDescription(byName.tax_id, withTypes)).toBe('A nine-digit tax number.')
+    expect(attributeDescription({ ...byName.tax_id, description: 'Own text.' }, withTypes)).toBe('Own text.')
+    expect(attributeDescription(byName.label, withTypes)).toBe('')  // a built-in has no definition
   })
 
   it('follows an extends chain to the built-in a value type is founded on', () => {
