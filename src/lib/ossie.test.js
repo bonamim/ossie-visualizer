@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   buildSearchIndex,
+  indexKinds,
   conceptMembers,
   mappingEvidenceForDataset,
   normalizeOssie,
@@ -288,6 +289,17 @@ describe('relationship classification', () => {
     const index = buildSearchIndex(model)
     expect(searchIndex(index, 'tax number', ['concept'])).toEqual([])
     expect(searchIndex(index, 'tax number', ['valueType'])[0].name).toBe('tax_number')
+  })
+
+  it('lists value types in the ontology index only while searching', () => {
+    const index = buildSearchIndex(model)
+    expect(indexKinds('ontology', '')).toEqual(['concept'])
+    expect(searchIndex(index, '', indexKinds('ontology', '')).map((item) => item.kind))
+      .not.toContain('valueType')
+    expect(searchIndex(index, 'tax number', indexKinds('ontology', 'tax number'))[0].name)
+      .toBe('tax_number')
+    expect(indexKinds('semantic', 'x')).toEqual(['dataset', 'metric', 'field'])
+    expect(indexKinds('ontology', 'x', 'metric')).toEqual(['metric'])
   })
 })
 

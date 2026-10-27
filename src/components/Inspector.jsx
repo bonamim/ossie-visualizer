@@ -360,6 +360,17 @@ function typeLabel(name, model, t) {
   return base === name ? name : `${name} (${base})`
 }
 
+/**
+ * Value types are reached through the attribute table of the entity that uses
+ * them, so a type that names one value type opens that value type's panel.
+ * Built-ins and multi-role attributes have no single panel to open.
+ */
+function valueTypeLink(types, model, onNavigate) {
+  if (types.length !== 1) return undefined
+  const target = conceptTarget(types[0].name, model)
+  return target?.kind === 'valueType' ? () => onNavigate(target) : undefined
+}
+
 function attributeTypes(member, model, t) {
   const roles = member.relationship.roles || []
   if (!roles.length) return []
@@ -523,7 +534,11 @@ function ConceptDetail({ item, model, onNavigate }) {
                       {!!descText && <small className="member-table__subdesc" title={descText}>{descText}</small>}
                       <ConstraintNote value={reqText} label={t('concept.colRequires')} />
                     </div>
-                    <Cell value={typeText} tone="member-table__cell--type" />
+                    <Cell
+                      value={typeText}
+                      tone="member-table__cell--type"
+                      onClick={valueTypeLink(types, model, onNavigate)}
+                    />
                   </MemberRow>
                 )
               }}

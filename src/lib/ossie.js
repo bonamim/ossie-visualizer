@@ -514,6 +514,21 @@ export function buildSearchIndex(model) {
   return items
 }
 
+/**
+ * The kinds the sidebar index lists for a tab. Value types are reached through
+ * the attribute table of the entity that uses them, so the ontology index lists
+ * entity types alone until the reader searches, when a value type is found by
+ * its name too -- as a semantic field is.
+ */
+export function indexKinds(tab, query, chosenKind = 'all') {
+  if (chosenKind !== 'all') return [chosenKind]
+  const searching = Boolean(query.trim())
+  if (tab === 'ontology') return searching ? ['concept', 'valueType'] : ['concept']
+  if (tab === 'semantic') return searching ? ['dataset', 'metric', 'field'] : ['dataset', 'metric']
+  if (tab === 'mapping') return ['mapping']
+  return []
+}
+
 export function searchIndex(items, query, kinds) {
   const normalized = normalizeSearchText(query)
   return items
